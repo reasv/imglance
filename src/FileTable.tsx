@@ -73,6 +73,12 @@ const FileTable = ({files, path}: {files: FileEntry[], path: string}) => {
   const [sortAsc, setSortAsc] = useState<boolean>(true);
 
   const sortedFiles: FileEntry[] = [...files].sort((a, b) => {
+    if (a.name === "..") {
+      return -1
+    }
+    if (b.name === "..") {
+      return 1
+    }
     if (sortBy === 'last_modified') {
         const aValue = a[sortBy];
         const bValue = b[sortBy];

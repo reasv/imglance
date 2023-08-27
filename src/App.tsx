@@ -73,11 +73,6 @@ function FileList() {
     return (<VStack spacing={8}>
       <PathBox onSearch={(p) => navigate(`/?path=${p}`)}></PathBox>
       <SliderSplitter leftComponent={<FileTable files={data} path={path}/>} rightComponent={<ImageGrid entries={data} path={path}></ImageGrid>} />
-      {/* <HStack align={'flex-start'}>
-        <FileTable files={data} path={path}/>
-        <ImageGrid entries={data} path={path}></ImageGrid>
-      </HStack> */}
-      
     </VStack>)
 }
 
