@@ -13,12 +13,14 @@ import {
   SliderThumb,
 } from '@chakra-ui/react';
 
-interface ImageMasonryProps {
+export interface ImageMasonryProps {
   entries: FileEntry[];
   path: string;
+  onClick?: (entry: FileEntry) => void
 }
 
-const ImageGrid: React.FC<ImageMasonryProps> = ({ entries, path }) => {
+const ImageGrid: React.FC<ImageMasonryProps> = ({ entries, path, onClick }) => {
+
   const imageEntries = entries.filter(entry => {
     const extensions = ['.jpg', '.jpeg', '.png', '.gif'];
     const fileExtension = entry.name.split('.').pop()?.toLowerCase() || '';
@@ -55,7 +57,7 @@ const ImageGrid: React.FC<ImageMasonryProps> = ({ entries, path }) => {
       </Slider>
       <Box style={containerStyle}>
         {imageEntries.map((entry, index) => (
-          <Image key={index} src={`http://127.0.0.1:8080/file?path=${path}${entry.name}`}  alt={entry.name} objectFit="contain" />
+          <Image onClick={() => onClick ? onClick(entry) : null } key={index} src={`http://127.0.0.1:8080/file?path=${path}${entry.name}`}  alt={entry.name} objectFit="contain" />
         ))}
       </Box>
     </div>

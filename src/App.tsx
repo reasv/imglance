@@ -11,15 +11,18 @@ import {
   HStack,
 } from "@chakra-ui/react"
 import { ColorModeSwitcher } from "./ColorModeSwitcher"
-import { Link, BrowserRouter as Router, Route, useLocation, Routes, useNavigate } from 'react-router-dom'
+import { BrowserRouter as Router, Route, useLocation, Routes, useNavigate } from 'react-router-dom'
 
 
 import upath from 'upath'
-import { getAPIURLFromPath, getCurrentPath } from "./utils"
+import { getAPIURLFromPath, getCurrentPath, getQueryParamValue } from "./utils"
+
+import PathBox from "./PathBox"
+import FilesView from "./FilesView"
+import ImageView from "./ImageView"
+import SliderSplitter from "./SliderSplitter"
 import FileTable from "./FileTable"
 import ImageGrid from "./ImageGrid"
-import PathBox from "./PathBox"
-import SliderSplitter from "./SliderSplitter"
 
 export interface FileEntry {
     name: string,
@@ -37,7 +40,7 @@ function FileList() {
     const location = useLocation()
     const pathParam = getCurrentPath(location)
     const [path, setPath] = React.useState<string>(pathParam)
-
+    const imageView = getQueryParamValue('imageview')
     const navigate = useNavigate()
 
     React.useEffect(() => {
@@ -70,9 +73,17 @@ function FileList() {
       fetchData()
     }, [navigate, pathParam])
 
+    const [selected, setSelection] = React.useState<FileEntry | undefined>()
+    function openImageView(entry: FileEntry) {
+      navigate(`/?path=${path}&imageview=true`)
+      setSelection(entry)
+    }
+
     return (<VStack spacing={8}>
       <PathBox onSearch={(p) => navigate(`/?path=${p}`)}></PathBox>
-      <SliderSplitter leftComponent={<FileTable files={data} path={path}/>} rightComponent={<ImageGrid entries={data} path={path}></ImageGrid>} />
+      {imageView ? 
+      <ImageView firstEntry={selected} entries={data} path={path}></ImageView> : 
+      <SliderSplitter leftComponent={<FileTable files={data} path={path}/>} rightComponent={<ImageGrid entries={data} path={path} onClick={openImageView}></ImageGrid>} />}
     </VStack>)
 }
 
