@@ -19,6 +19,7 @@ import { getAPIURLFromPath, getCurrentPath } from "./utils"
 import FileTable from "./FileTable"
 import ImageGrid from "./ImageGrid"
 import PathBox from "./PathBox"
+import SliderSplitter from "./SliderSplitter"
 
 export interface FileEntry {
     name: string,
@@ -71,10 +72,11 @@ function FileList() {
 
     return (<VStack spacing={8}>
       <PathBox onSearch={(p) => navigate(`/?path=${p}`)}></PathBox>
-      <HStack align={'flex-start'}>
+      <SliderSplitter leftComponent={<FileTable files={data} path={path}/>} rightComponent={<ImageGrid entries={data} path={path}></ImageGrid>} />
+      {/* <HStack align={'flex-start'}>
         <FileTable files={data} path={path}/>
         <ImageGrid entries={data} path={path}></ImageGrid>
-      </HStack>
+      </HStack> */}
       
     </VStack>)
 }

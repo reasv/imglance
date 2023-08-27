@@ -16,6 +16,14 @@ import { Link } from 'react-router-dom';
 import upath from 'upath'
 import { getAPIURLFromPath } from './utils';
 
+function shortenString(input: string, maxLength: number): string {
+  if (input.length <= maxLength) {
+    return input;
+  }
+
+  return input.slice(0, maxLength - 3) + '...';
+}
+
 const humanReadableFileSize = (sizeInBytes: number): string => {
     if (sizeInBytes < 1024) {
       return sizeInBytes + ' B';
@@ -45,19 +53,18 @@ function formatEpochToHumanReadable(epochMilliseconds: number) {
     }
     const date = new Date(epochMilliseconds);
 
-    const year = date.getFullYear();
+    const year = date.getFullYear().toString().slice(-2);
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
 
-    const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}`;
     return formattedDate;
 }
 function FileListEntry({path, entry}: {path: string, entry: FileEntry}) {
     return (<>{
-      entry.is_directory ? <Link to={`/?path=/${upath.join(path, entry.name)}/`}>{entry.name}</Link> : <a href={getAPIURLFromPath(`/${upath.join(path, entry.name)}`, false)}>{entry.name}</a>
+      entry.is_directory ? <Link to={`/?path=/${upath.join(path, entry.name)}/`}>{shortenString(entry.name, 20)}</Link> : <a href={getAPIURLFromPath(`/${upath.join(path, entry.name)}`, false)}>{shortenString(entry.name, 20)}</a>
     }</>)
   }
   
@@ -148,7 +155,7 @@ const FileTable = ({files, path}: {files: FileEntry[], path: string}) => {
               <Icon as={file.is_directory ? FiFolder : FiFile} mr={2} />
               <FileListEntry entry={file} path={path}></FileListEntry>
             </Td>
-            <Td>{getFileExtension(file.name)}</Td>
+            <Td>{shortenString(getFileExtension(file.name), 7)}</Td>
             <Td>{formatEpochToHumanReadable(file.last_modified)}</Td>
             <Td>{humanReadableFileSize(file.fsize)}</Td>
           </Tr>
