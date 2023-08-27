@@ -14,9 +14,12 @@ import { Link, BrowserRouter as Router, Route, useLocation, Routes, useNavigate 
 
 
 import upath from 'upath'
-import { getAPIURLFromPath, getCurrentPath, setCurrentPath } from "./utils"
+import { getAPIURLFromPath, getCurrentPath } from "./utils"
+import FileTable from "./FileTable"
+import ImageGrid from "./ImageGrid"
+import PathBox from "./PathBox"
 
-interface FileEntry {
+export interface FileEntry {
     name: string,
     is_directory: boolean,
     last_modified: number,
@@ -25,12 +28,6 @@ interface FileEntry {
 interface FolderData {
   entries: FileEntry[],
   absolute_path: string
-}
-
-function FileListEntry({path, entry}: {path: string, entry: FileEntry}) {
-  return (<>{
-    entry.is_directory ? <Link to={`/?path=/${upath.join(path, entry.name)}/`}>{entry.name}</Link> : <a href={getAPIURLFromPath(`/${upath.join(path, entry.name)}`, false)}>{entry.name}</a>
-  }</>)
 }
 
 function FileList() {
@@ -72,7 +69,9 @@ function FileList() {
     }, [navigate, pathParam])
 
     return (<VStack spacing={8}>
-      {data.map((file) => <FileListEntry key={file.name} path={path} entry={file}></FileListEntry>)}
+      <PathBox onSearch={(p) => navigate(`/?path=${p}`)}></PathBox>
+      <FileTable files={data} path={path}/>
+      <ImageGrid entries={data} path={path}></ImageGrid>
     </VStack>)
 }
 
