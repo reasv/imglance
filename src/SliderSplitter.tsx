@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Slider, SliderTrack, SliderFilledTrack, SliderThumb } from "@chakra-ui/react";
 
 interface SliderSplitterProps {
@@ -7,7 +7,20 @@ interface SliderSplitterProps {
 }
 
 const SliderSplitter: React.FC<SliderSplitterProps> = ({ leftComponent, rightComponent }) => {
-  const [splitRatio, setSplitRatio] = useState<number>(0.5);
+  function getSavedValue() {
+    const savedRatio = localStorage.getItem('ratio');
+    if (savedRatio) {
+      return Number(savedRatio)
+    }
+    return 0.5
+  }
+  const [splitRatio, setSplitRatio] = useState<number>(getSavedValue());
+
+  // Save to localStorage whenever it changes
+  useEffect(() => {
+    console.log("test")
+    localStorage.setItem('ratio', splitRatio.toString());
+  }, [splitRatio]);
 
   return (
     <>
