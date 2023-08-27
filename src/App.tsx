@@ -8,6 +8,7 @@ import {
   Code,
   Grid,
   theme,
+  HStack,
 } from "@chakra-ui/react"
 import { ColorModeSwitcher } from "./ColorModeSwitcher"
 import { Link, BrowserRouter as Router, Route, useLocation, Routes, useNavigate } from 'react-router-dom'
@@ -70,8 +71,11 @@ function FileList() {
 
     return (<VStack spacing={8}>
       <PathBox onSearch={(p) => navigate(`/?path=${p}`)}></PathBox>
-      <FileTable files={data} path={path}/>
-      <ImageGrid entries={data} path={path}></ImageGrid>
+      <HStack align={'flex-start'}>
+        <FileTable files={data} path={path}/>
+        <ImageGrid entries={data} path={path}></ImageGrid>
+      </HStack>
+      
     </VStack>)
 }
 

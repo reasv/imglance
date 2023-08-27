@@ -19,7 +19,7 @@ const ImageGrid: React.FC<ImageMasonryProps> = ({ entries, path }) => {
   });
 
   return (
-    <SimpleGrid columns={3} spacing={4}>
+    <SimpleGrid columns={5} spacing={4}>
       {imageEntries.map((entry, index) => (
         <Box key={index}>
           <Image
