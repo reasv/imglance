@@ -33,7 +33,7 @@ const SliderSplitter: React.FC<SliderSplitterProps> = ({ leftComponent, rightCom
       </Box>
       
       <Box flex={1 - splitRatio} overflow="auto">
-        {rightComponent}
+        {splitRatio < 1 && rightComponent}
       </Box>
     </Box>
     </>
