@@ -24,7 +24,6 @@ const ImageGrid: React.FC<ImageMasonryProps> = ({ entries, path }) => {
     const fileExtension = entry.name.split('.').pop()?.toLowerCase() || '';
     return entry.is_directory === false && extensions.includes(`.${fileExtension}`);
   });
-  const [columns, setColumns] = useState(3); // Initial number of columns
   const [imageSize, setImageSize] = useState(100); // Initial image size in pixels
 
   const handleSliderChange = (value: number) => {
