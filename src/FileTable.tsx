@@ -64,7 +64,7 @@ function formatEpochToHumanReadable(epochMilliseconds: number) {
 }
 function FileListEntry({path, entry}: {path: string, entry: FileEntry}) {
     return (<>{
-      entry.is_directory ? <Link to={`/?path=/${upath.join(path, entry.name)}/`}>{shortenString(entry.name, 20)}</Link> : <a href={getAPIURLFromPath(`/${upath.join(path, entry.name)}`, false)}>{shortenString(entry.name, 20)}</a>
+      entry.is_directory ? <Link to={`/?path=/${upath.join(path, entry.name)}/`}>{shortenString(entry.name, 20)}</Link> : <a target='_blank' rel="noreferrer" href={getAPIURLFromPath(`/${upath.join(path, entry.name)}`, false)}>{shortenString(entry.name, 20)}</a>
     }</>)
   }
   
