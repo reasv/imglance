@@ -14,7 +14,7 @@ import { FiFolder, FiFile, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import { FileEntry } from './App';
 import { Link } from 'react-router-dom';
 import upath from 'upath'
-import { getAPIURLFromPath } from './utils';
+import { getAPIURLFromPath, getQueryParamValue } from './utils';
 
 function shortenString(input: string, maxLength: number): string {
   if (input.length <= maxLength) {
@@ -63,8 +63,33 @@ function formatEpochToHumanReadable(epochMilliseconds: number) {
     return formattedDate;
 }
 function FileListEntry({path, entry}: {path: string, entry: FileEntry}) {
+  
+  
+  const directoryUrl = (() => {
+    const pathPinned = getQueryParamValue('pinned') === 'true'
+    const directoryPath = `/${upath.join(entry.absolute_path, entry.name)}/`
+    if (!pathPinned) {
+      return `/?path=${directoryPath}`
+    }
+    const imgpath = getQueryParamValue('imgpath')
+    if (imgpath && imgpath.length > 0) {
+      const pathSet = new Set(imgpath.split(','))
+      if (pathSet.has(directoryPath)) {
+        pathSet.delete(directoryPath)
+      } else {
+        pathSet.add(directoryPath)
+      }
+      return `/?path=${path}&pinned=true&imgpath=${Array.from(pathSet).join(',')}`
+    }
+    return `/?path=${path}&pinned=true&imgpath=${directoryPath}`
+  })()
+  
+
     return (<>{
-      entry.is_directory ? <Link to={`/?path=/${upath.join(path, entry.name)}/`}>{shortenString(entry.name, 20)}</Link> : <a target='_blank' rel="noreferrer" href={getAPIURLFromPath(`/${upath.join(path, entry.name)}`, false)}>{shortenString(entry.name, 20)}</a>
+      entry.is_directory ? 
+        <Link to={directoryUrl}>{shortenString(entry.name, 20)}</Link> 
+        :
+        <a target='_blank' rel="noreferrer" href={getAPIURLFromPath(`/${upath.join(entry.absolute_path, entry.name)}`, false)}>{shortenString(entry.name, 20)}</a>
     }</>)
   }
   

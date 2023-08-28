@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Input, IconButton, Flex } from '@chakra-ui/react';
+import { Input, IconButton, Flex, Checkbox } from '@chakra-ui/react';
 import { ArrowForwardIcon, SearchIcon } from '@chakra-ui/icons';
 import { useLocation } from 'react-router-dom';
 import { getCurrentPath } from './utils';
 
-const PathBox: React.FC<{ onSearch: (query: string) => void }> = ({ onSearch }) => {
+const PathBox: React.FC<{ onSearch: (query: string) => void, onPinPath: (pinned: boolean) => void }> = ({ onSearch, onPinPath }) => {
     const location = useLocation()
     const pathParam = getCurrentPath(location)
     const [query, setQuery] = useState(pathParam);
@@ -16,6 +16,11 @@ const PathBox: React.FC<{ onSearch: (query: string) => void }> = ({ onSearch }) 
     const handleSubmit = () => {
         onSearch(query);
     };
+    const [isChecked, setIsChecked] = useState(false);
+    const handleCheckboxChange = () => {
+        onPinPath(!isChecked);
+        setIsChecked(!isChecked);
+    }
 
     return (
         <Flex alignItems="center">
@@ -32,6 +37,9 @@ const PathBox: React.FC<{ onSearch: (query: string) => void }> = ({ onSearch }) 
             onClick={handleSubmit}
             colorScheme="blue"
         />
+        <Checkbox ml={4} isChecked={isChecked} onChange={handleCheckboxChange}>
+            Pin current path
+        </Checkbox>
         </Flex>
     );
 };

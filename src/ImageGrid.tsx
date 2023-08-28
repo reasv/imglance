@@ -15,11 +15,10 @@ import {
 
 export interface ImageMasonryProps {
   entries: FileEntry[];
-  path: string;
   onClick?: (entry: FileEntry) => void
 }
 
-const ImageGrid: React.FC<ImageMasonryProps> = ({ entries, path, onClick }) => {
+const ImageGrid: React.FC<ImageMasonryProps> = ({ entries, onClick }) => {
 
   const imageEntries = entries.filter(entry => {
     const extensions = ['.jpg', '.jpeg', '.png', '.gif'];
@@ -64,7 +63,7 @@ const ImageGrid: React.FC<ImageMasonryProps> = ({ entries, path, onClick }) => {
       style={containerStyle}
       >
         {imageEntries.map((entry, index) => (
-          <Image onClick={() => onClick ? onClick(entry) : null } key={index} src={`http://127.0.0.1:8080/file?path=${path}${entry.name}`}  alt={entry.name} objectFit="contain" width={"100%"} />
+          <Image onClick={() => onClick ? onClick(entry) : null } key={index} src={`http://127.0.0.1:8080/file?path=${entry.absolute_path}${entry.name}`}  alt={entry.name} objectFit="contain" width={"100%"} />
         ))}
       </Box>
     </Box>}</>

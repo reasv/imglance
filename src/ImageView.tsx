@@ -1,16 +1,15 @@
-import ImageGrid, { ImageMasonryProps } from "./ImageGrid";
+import ImageGrid from "./ImageGrid";
 import SliderSplitter from "./SliderSplitter";
 import { useState } from "react";
 import { FileEntry } from "./App";
 
 export interface ImageViewProps {
     entries: FileEntry[];
-    path: string;
     firstEntry?: FileEntry
     onClick?: (entry: FileEntry) => void
 }
 
-export const ImageView = ({ entries, path, firstEntry }: ImageViewProps) => {
+export const ImageView = ({ entries, firstEntry }: ImageViewProps) => {
     const [selection, setSelection] = useState<FileEntry[]>(firstEntry ? [firstEntry] : [])
 
     const onImageClick = (entry: FileEntry) => {
@@ -21,7 +20,7 @@ export const ImageView = ({ entries, path, firstEntry }: ImageViewProps) => {
         setSelection(s => s.filter(e => e.name !== entry.name))
     }
 
-    return (<SliderSplitter leftComponent={<ImageGrid entries={entries} path={path} onClick={onImageClick} />} rightComponent={<ImageGrid entries={selection} path={path} onClick={onImageRemove}></ImageGrid>} />)
+    return (<SliderSplitter leftComponent={<ImageGrid entries={entries} onClick={onImageClick} />} rightComponent={<ImageGrid entries={selection} onClick={onImageRemove}></ImageGrid>} />)
 }
 
 export default ImageView
