@@ -140,8 +140,13 @@ export function FileView() {
     }, [sortedEntries.entries, pinData, sortBy, sortAsc])
 
     const imageViewEntries = useMemo(() => {
+      if (pinnedImages.find((e) => e.absolute_path === path)) {
+        const pinnedFolderContent = dedupeEntries(pinData.filter(entry => isImageFile(entry)))
+        pinnedFolderContent.sort(getFileCompare(sortBy, sortAsc, true))
+        return [...pinnedImages, ...pinnedFolderContent]
+      }
       return [...pinnedImages, ...imageEntries]
-    }, [pinnedImages, imageEntries])
+    }, [pinnedImages, imageEntries, path, pinData, sortBy, sortAsc])
 
     return (<VStack spacing={3}>
       <PathBox onSearch={(p) => navigate(`/?path=${p}`)} onPinPath={onPathPinned} onOpenImageView={openImageView}></PathBox>
