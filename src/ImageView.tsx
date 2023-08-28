@@ -2,7 +2,7 @@ import ImageGrid from "./ImageGrid";
 import SliderSplitter from "./SliderSplitter";
 import { useState } from "react";
 import { FileEntry } from "./FileView";
-import { useMemo } from 'react'
+
 export interface ImageViewProps {
     entries: FileEntry[];
     onClick?: (entry: FileEntry) => void

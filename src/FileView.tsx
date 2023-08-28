@@ -78,16 +78,15 @@ export function FileView() {
     }
 
     function selectImage(entry: FileEntry) {
-      setPinnedImages(s => {
-        const i = s.findIndex((e) => entryIsEqual(e, entry))
-        if (i !== -1) {
+      const i = pinnedImages.findIndex((e) => entryIsEqual(e, entry))
+      if (i === -1) {
+        setPinnedImages(s => [entry, ...s])
+      } else {
+        setPinnedImages(s => {
           s.splice(i)
           return s
-        }
-        return [entry, ...s]
-        
-      })
-      console.log("images", pinnedImages)
+        })
+      }
     }
 
     const [pinData, setPinData] = React.useState<Array<FileEntry>>([])
