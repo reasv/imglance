@@ -1,16 +1,15 @@
 import ImageGrid from "./ImageGrid";
 import SliderSplitter from "./SliderSplitter";
 import { useState } from "react";
-import { FileEntry } from "./App";
-
+import { FileEntry } from "./FileView";
+import { useMemo } from 'react'
 export interface ImageViewProps {
     entries: FileEntry[];
-    firstEntry?: FileEntry
     onClick?: (entry: FileEntry) => void
 }
 
-export const ImageView = ({ entries, firstEntry }: ImageViewProps) => {
-    const [selection, setSelection] = useState<FileEntry[]>(firstEntry ? [firstEntry] : [])
+export const ImageView = ({ entries }: ImageViewProps) => {
+    const [selection, setSelection] = useState<FileEntry[]>([])
 
     const onImageClick = (entry: FileEntry) => {
         setSelection(s => [entry, ...s])

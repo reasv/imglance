@@ -11,12 +11,12 @@ import {
   Checkbox,
 } from '@chakra-ui/react';
 import { FiFolder, FiFile, FiArrowUp, FiArrowDown } from 'react-icons/fi';
-import { FileEntry } from './App';
+import { FileEntry, SortedEntries } from './FileView';
 import { Link, useNavigate } from 'react-router-dom';
 import { formatEpochToHumanReadable, getAPIURLFromPath, getFileExtension, getPinnedPaths, getQueryParamValue, humanReadableFileSize, shortenString } from './utils';
 
 
-function FileListEntry({path, entry}: {path: string, entry: FileEntry}) {
+function FileListEntry({entry}: {entry: FileEntry}) {
   const directoryUrl = (() => {
     const pathPinned = getQueryParamValue('pinned') === 'true'
     const directoryPath = entry.name === ".." ? entry.absolute_path : `${entry.absolute_path}${entry.name}/`
@@ -62,49 +62,9 @@ const PinCheckbox = ({path, entry, pinnedPaths}: {path: string, entry: FileEntry
   return (<Checkbox mr={4} isChecked={pathPinned} onChange={handleCheckboxChange}/>)
 }
   
-const FileTable = ({files, path}: {files: FileEntry[], path: string}) => {
-  const [sortBy, setSortBy] = useState<keyof FileEntry | 'ext'>('name');
-  const [sortAsc, setSortAsc] = useState<boolean>(true);
+const FileTable = ({path, sortedEntries}: {files: FileEntry[], path: string, sortedEntries: SortedEntries}) => {
 
-  const sortedFiles: FileEntry[] = [...files].sort((a, b) => {
-    if (a.name === "..") {
-      return -1
-    }
-    if (b.name === "..") {
-      return 1
-    }
-    if (sortBy === 'last_modified') {
-        const aValue = a[sortBy];
-        const bValue = b[sortBy];
-      return sortAsc ? new Date(aValue).getTime() - new Date(bValue).getTime() : new Date(bValue).getTime() - new Date(aValue).getTime();
-    }
-    if (sortBy === 'fsize') {
-        const aValue = a[sortBy];
-        const bValue = b[sortBy];
-      return sortAsc ? aValue - bValue : bValue - aValue;
-    } else if (sortBy === 'name') {
-        const aValue = a[sortBy];
-        const bValue = b[sortBy];
-        return sortAsc ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
-    } else if (sortBy === 'ext') {
-        const aValue = getFileExtension(a['name']);
-        const bValue = getFileExtension(b['name']);
-        return sortAsc ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
-    }
-    const aValue = a[sortBy];
-    const bValue = b[sortBy];
-    const cmp = (aValue === bValue ? 0 : aValue ? -1 : 1)
-    return sortAsc ? cmp : cmp * -1 
-  });
-
-  const handleSort = (column: keyof FileEntry | 'ext') => {
-    if (sortBy === column) {
-      setSortAsc(!sortAsc);
-    } else {
-      setSortBy(column);
-      setSortAsc(true);
-    }
-  };
+  const {handleSort, sortAsc, sortBy, entries} = sortedEntries
 
   const pinning = getQueryParamValue('pinned') === 'true'
   const pinnedPaths = getPinnedPaths()
@@ -151,12 +111,12 @@ const FileTable = ({files, path}: {files: FileEntry[], path: string}) => {
         </Tr>
       </Thead>
       <Tbody>
-        {sortedFiles.map((file, index) => (
+        {entries.map((file, index) => (
           <Tr key={index}>
             <Td>
               {pinning && file.is_directory && <PinCheckbox pinnedPaths={pinnedPaths} entry={file} path={path} />}
              <Icon as={file.is_directory ? FiFolder : FiFile} mr={2} />
-              <FileListEntry entry={file} path={path}></FileListEntry>
+              <FileListEntry entry={file}></FileListEntry>
             </Td>
             <Td>{shortenString(getFileExtension(file.name), 7)}</Td>
             <Td>{formatEpochToHumanReadable(file.last_modified)}</Td>

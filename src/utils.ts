@@ -1,10 +1,10 @@
 import { Location } from 'react-router-dom';
 import upath from 'upath'
-import { FileEntry } from './App';
+import { FileEntry } from './FileView';
 
 export function getQueryParamValue(queryParam: string) {
     const searchParams = new URLSearchParams(window.location.search);
-    return searchParams.get(queryParam);
+    return searchParams.get(queryParam) || '';
 }
 
 export function setQueryParamValue(queryParam: string, value: string) {
@@ -94,4 +94,36 @@ export function formatEpochToHumanReadable(epochMilliseconds: number) {
 export function isImageFile(file: FileEntry): boolean {
     const extension = getFileExtension(file.name);
     return file.is_directory === false && ['jpg', 'jpeg', 'png', 'gif'].includes(extension)
+}
+interface FolderData {
+    entries: FileEntry[],
+    absolute_path: string
+}  
+export async function getFileList(path: string): Promise<FolderData> {
+    const response = await fetch(getAPIURLFromPath(path, true))
+    if (!response.ok) throw new Error(`HTTP error ${response.status}`)
+    const json: FolderData = await response.json()
+    const parsedPath = upath.parse(json.absolute_path)
+    const fullPath = `${parsedPath.dir}/${parsedPath.base}/`
+    for (let entry of json.entries) {
+      entry.absolute_path = fullPath
+    }
+    return json
+}
+
+export function dedupeEntries(entries: FileEntry[]): FileEntry[] {
+    const deduped = new Map()
+
+    for (let entry of entries) {
+        deduped.set(`${entry.absolute_path}${entry.name}`, entry)
+    }
+    return Array.from(deduped.values())
+}
+
+export function canonicalName(entry: FileEntry) {
+    return `${entry.absolute_path}${entry.name}`
+}
+
+export function entryIsEqual(a: FileEntry, b: FileEntry) {
+    return canonicalName(a) === canonicalName(b)
 }

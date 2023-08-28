@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Input, IconButton, Flex, Checkbox } from '@chakra-ui/react';
-import { ArrowForwardIcon, SearchIcon } from '@chakra-ui/icons';
+import { ArrowForwardIcon, ViewIcon } from '@chakra-ui/icons';
 import { useLocation } from 'react-router-dom';
 import { getCurrentPath } from './utils';
 
-const PathBox: React.FC<{ onSearch: (query: string) => void, onPinPath: (pinned: boolean) => void }> = ({ onSearch, onPinPath }) => {
+const PathBox: React.FC<{ onSearch: (query: string) => void, onPinPath: (pinned: boolean) => void, onOpenImageView: () => void }> = ({ onSearch, onPinPath, onOpenImageView }) => {
     const location = useLocation()
     const pathParam = getCurrentPath(location)
     const [query, setQuery] = useState(pathParam);
@@ -36,6 +36,13 @@ const PathBox: React.FC<{ onSearch: (query: string) => void, onPinPath: (pinned:
             icon={<ArrowForwardIcon />}
             onClick={handleSubmit}
             colorScheme="blue"
+        />
+        <IconButton
+            aria-label="Image view mode"
+            icon={<ViewIcon />}
+            onClick={onOpenImageView}
+            colorScheme="blue"
+            ml={4}
         />
         <Checkbox ml={4} isChecked={isChecked} onChange={handleCheckboxChange}>
             Enable path pinning
