@@ -38,7 +38,7 @@ const PathBox: React.FC<{ onSearch: (query: string) => void, onPinPath: (pinned:
             colorScheme="blue"
         />
         <Checkbox ml={4} isChecked={isChecked} onChange={handleCheckboxChange}>
-            Pin current path
+            Enable path pinning
         </Checkbox>
         </Flex>
     );
