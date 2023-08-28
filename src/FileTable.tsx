@@ -66,7 +66,7 @@ function FileListEntry({path, entry}: {path: string, entry: FileEntry}) {
   
   const directoryUrl = (() => {
     const pathPinned = getQueryParamValue('pinned') === 'true'
-    const directoryPath = `${entry.absolute_path}${entry.name}/`
+    const directoryPath = entry.name === ".." ? entry.absolute_path : `${entry.absolute_path}${entry.name}/`
     if (!pathPinned) {
       return `/?path=${directoryPath}`
     }
