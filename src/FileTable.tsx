@@ -8,12 +8,12 @@ import {
   Td,
   IconButton,
   Icon,
-  chakra,
+  Checkbox,
 } from '@chakra-ui/react';
 import { FiFolder, FiFile, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import { FileEntry } from './App';
-import { Link } from 'react-router-dom';
-import { getAPIURLFromPath, getQueryParamValue } from './utils';
+import { Link, useNavigate } from 'react-router-dom';
+import { getAPIURLFromPath, getPinnedPaths, getQueryParamValue } from './utils';
 
 function shortenString(input: string, maxLength: number): string {
   if (input.length <= maxLength) {
@@ -62,8 +62,6 @@ function formatEpochToHumanReadable(epochMilliseconds: number) {
     return formattedDate;
 }
 function FileListEntry({path, entry}: {path: string, entry: FileEntry}) {
-  
-  
   const directoryUrl = (() => {
     const pathPinned = getQueryParamValue('pinned') === 'true'
     const directoryPath = entry.name === ".." ? entry.absolute_path : `${entry.absolute_path}${entry.name}/`
@@ -71,16 +69,7 @@ function FileListEntry({path, entry}: {path: string, entry: FileEntry}) {
       return `/?path=${directoryPath}`
     }
     const imgpath = getQueryParamValue('imgpath')
-    if (imgpath && imgpath.length > 0) {
-      const pathSet = new Set(imgpath.split(','))
-      if (pathSet.has(directoryPath)) {
-        pathSet.delete(directoryPath)
-      } else {
-        pathSet.add(directoryPath)
-      }
-      return `/?path=${path}&pinned=true&imgpath=${Array.from(pathSet).join(',')}`
-    }
-    return `/?path=${path}&pinned=true&imgpath=${directoryPath}`
+    return `/?path=${directoryPath}&pinned=true&imgpath=${imgpath}`
   })()
   
 
@@ -91,6 +80,32 @@ function FileListEntry({path, entry}: {path: string, entry: FileEntry}) {
         <a target='_blank' rel="noreferrer" href={getAPIURLFromPath(`${entry.absolute_path}${entry.name}`, false)}>{shortenString(entry.name, 20)}</a>
     }</>)
   }
+
+
+const PinCheckbox = ({path, entry, pinnedPaths}: {path: string, entry: FileEntry, pinnedPaths: Set<string>}) => {
+  const directoryPath = entry.name === ".." ? entry.absolute_path : `${entry.absolute_path}${entry.name}/`
+  let pathPinned = pinnedPaths.has(directoryPath)
+
+  const navigate = useNavigate()
+
+  const handleCheckboxChange = () => {
+    if (pathPinned) {
+      pinnedPaths.delete(directoryPath)
+    } else {
+      pinnedPaths.add(directoryPath)
+    }
+    if (pinnedPaths.size === 0) {
+      navigate(`/?path=${path}&pinned=true`)
+      return 
+    }
+    if (pinnedPaths.size === 1) {
+      navigate(`/?path=${path}&pinned=true&imgpath=${Array.from(pinnedPaths)[0]}`)
+      return
+    }
+    navigate(`/?path=${path}&pinned=true&imgpath=${Array.from(pinnedPaths).join(',')}`)
+  }
+  return (<Checkbox mr={4} isChecked={pathPinned} onChange={handleCheckboxChange}/>)
+}
   
 const FileTable = ({files, path}: {files: FileEntry[], path: string}) => {
   const [sortBy, setSortBy] = useState<keyof FileEntry | 'ext'>('name');
@@ -136,6 +151,8 @@ const FileTable = ({files, path}: {files: FileEntry[], path: string}) => {
     }
   };
 
+  const pinning = getQueryParamValue('pinned') === 'true'
+  const pinnedPaths = getPinnedPaths()
   return (
     <Table variant="simple">
       <Thead>
@@ -182,7 +199,8 @@ const FileTable = ({files, path}: {files: FileEntry[], path: string}) => {
         {sortedFiles.map((file, index) => (
           <Tr key={index}>
             <Td>
-              <Icon as={file.is_directory ? FiFolder : FiFile} mr={2} />
+              {pinning && <PinCheckbox pinnedPaths={pinnedPaths} entry={file} path={path} />}
+             <Icon as={file.is_directory ? FiFolder : FiFile} mr={2} />
               <FileListEntry entry={file} path={path}></FileListEntry>
             </Td>
             <Td>{shortenString(getFileExtension(file.name), 7)}</Td>
