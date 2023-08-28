@@ -44,7 +44,7 @@ const ImageGrid: React.FC<ImageMasonryProps> = ({ entries, path, onClick }) => {
         value={imageSize}
         onChange={handleSliderChange}
         min={50}
-        max={1000}
+        max={2048}
         step={10}
         width="80%"
         mx="auto"

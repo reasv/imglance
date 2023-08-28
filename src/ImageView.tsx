@@ -14,7 +14,7 @@ export const ImageView = ({ entries, path, firstEntry }: ImageViewProps) => {
     const [selection, setSelection] = useState<FileEntry[]>(firstEntry ? [firstEntry] : [])
 
     const onImageClick = (entry: FileEntry) => {
-        setSelection(s => [...s, entry])
+        setSelection(s => [entry, ...s])
     }
 
     const onImageRemove = (entry: FileEntry) => {
