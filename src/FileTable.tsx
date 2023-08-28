@@ -13,54 +13,9 @@ import {
 import { FiFolder, FiFile, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import { FileEntry } from './App';
 import { Link, useNavigate } from 'react-router-dom';
-import { getAPIURLFromPath, getPinnedPaths, getQueryParamValue } from './utils';
+import { formatEpochToHumanReadable, getAPIURLFromPath, getFileExtension, getPinnedPaths, getQueryParamValue, humanReadableFileSize, shortenString } from './utils';
 
-function shortenString(input: string, maxLength: number): string {
-  if (input.length <= maxLength) {
-    return input;
-  }
 
-  return input.slice(0, maxLength - 3) + '...';
-}
-
-const humanReadableFileSize = (sizeInBytes: number): string => {
-    if (sizeInBytes < 1024) {
-      return sizeInBytes + ' B';
-    } else if (sizeInBytes < 1024 * 1024) {
-      return (sizeInBytes / 1024).toFixed(2) + ' KB';
-    } else if (sizeInBytes < 1024 * 1024 * 1024) {
-      return (sizeInBytes / (1024 * 1024)).toFixed(2) + ' MB';
-    } else {
-        return (sizeInBytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
-    }
-}
-
-function getFileExtension(fileName: string): string {
-    const lastDotIndex = fileName.lastIndexOf('.');
-    
-    if (lastDotIndex === -1 || lastDotIndex === 0) {
-      return ''; // No extension found or the dot is the first character
-    }
-  
-    const extension = fileName.substring(lastDotIndex + 1);
-    return extension.toLowerCase(); // Return the extension in lowercase
-}
-
-function formatEpochToHumanReadable(epochMilliseconds: number) {
-    if (epochMilliseconds === 0) {
-        return ''
-    }
-    const date = new Date(epochMilliseconds);
-
-    const year = date.getFullYear().toString().slice(-2);
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-
-    const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}`;
-    return formattedDate;
-}
 function FileListEntry({path, entry}: {path: string, entry: FileEntry}) {
   const directoryUrl = (() => {
     const pathPinned = getQueryParamValue('pinned') === 'true'
@@ -199,7 +154,7 @@ const FileTable = ({files, path}: {files: FileEntry[], path: string}) => {
         {sortedFiles.map((file, index) => (
           <Tr key={index}>
             <Td>
-              {pinning && <PinCheckbox pinnedPaths={pinnedPaths} entry={file} path={path} />}
+              {pinning && file.is_directory && <PinCheckbox pinnedPaths={pinnedPaths} entry={file} path={path} />}
              <Icon as={file.is_directory ? FiFolder : FiFile} mr={2} />
               <FileListEntry entry={file} path={path}></FileListEntry>
             </Td>

@@ -14,7 +14,7 @@ import { BrowserRouter as Router, Route, useLocation, Routes, useNavigate } from
 
 
 import upath from 'upath'
-import { getAPIURLFromPath, getCurrentPath, getQueryParamValue } from "./utils"
+import { getAPIURLFromPath, getCurrentPath, getFileExtension, getPinnedPaths, getQueryParamValue, isImageFile } from "./utils"
 
 import PathBox from "./PathBox"
 import ImageView from "./ImageView"
@@ -52,7 +52,6 @@ function FileList() {
     const pathParam = getCurrentPath(location)
     const [path, setPath] = React.useState<string>(pathParam)
     const imageView = getQueryParamValue('imageview') === 'true'
-    const pathPinned = getQueryParamValue('pinned') === 'true'
     const navigate = useNavigate()
 
     React.useEffect(() => {
@@ -84,12 +83,38 @@ function FileList() {
       }
       fetchData()
     }, [navigate, pathParam])
+    const pathPinned = getQueryParamValue('pinned') === 'true'
 
+    
+
+    const pinnedPaths = getPinnedPaths()
     const [selected, setSelection] = React.useState<FileEntry | undefined>()
     function openImageView(entry: FileEntry) {
-      navigate(`/?path=${path}&imageview=true&pinned=${pathPinned}`)
+      navigate(`/?path=${path}&imageview=true&pinned=${pathPinned}&imgpath=${getQueryParamValue('imgpath')}`)
       setSelection(entry)
     }
+
+    const [pinData, setPinData] = React.useState<Array<FileEntry>>([])
+    const [fetchedPaths, setFetchedPaths] = React.useState<Set<string>>(new Set<string>())
+
+    React.useEffect(() => {
+      async function fetchPinnedData() {
+        for (let pinnedPath of Array.from(pinnedPaths)) {
+          if (fetchedPaths.has(pinnedPath)) {
+            continue
+          }
+          const folderData = await getFileList(pinnedPath)
+          setPinData(pinData => [...folderData.entries, ...pinData])
+          setFetchedPaths(fetchedPaths => fetchedPaths.add(pinnedPath))
+        }
+      }
+      if (pathPinned && pinnedPaths.size > 0) {
+        fetchPinnedData()
+      } else {
+        setPinData([])
+        setFetchedPaths(new Set<string>())
+      }
+    }, [pathPinned, pinnedPaths, fetchedPaths])
 
     const onPathPinned = (pinned: boolean) => {
       if (pinned) {
@@ -99,11 +124,15 @@ function FileList() {
       }
     }
 
+    const imageEntries = React.useMemo(() => {
+      return [...pinData.filter(entry => isImageFile(entry)), ...data.filter(entry => isImageFile(entry))];
+    }, [data, pinData])
+
     return (<VStack spacing={3}>
       <PathBox onSearch={(p) => navigate(`/?path=${p}`)} onPinPath={onPathPinned}></PathBox>
       {imageView ? 
-      <ImageView firstEntry={selected} entries={data}></ImageView> : 
-      <SliderSplitter leftComponent={<FileTable files={data} path={path}/>} rightComponent={<ImageGrid entries={data} onClick={openImageView}></ImageGrid>} />}
+      <ImageView firstEntry={selected} entries={imageEntries}></ImageView> : 
+      <SliderSplitter leftComponent={<FileTable files={data} path={path}/>} rightComponent={<ImageGrid entries={imageEntries} onClick={openImageView}></ImageGrid>} />}
     </VStack>)
 }
 

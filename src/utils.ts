@@ -1,5 +1,6 @@
 import { Location } from 'react-router-dom';
 import upath from 'upath'
+import { FileEntry } from './App';
 
 export function getQueryParamValue(queryParam: string) {
     const searchParams = new URLSearchParams(window.location.search);
@@ -41,4 +42,56 @@ export function getPinnedPaths(): Set<string> {
     } else {
         return new Set()
     }
+}
+
+export function shortenString(input: string, maxLength: number): string {
+    if (input.length <= maxLength) {
+      return input;
+    }
+  
+    return input.slice(0, maxLength - 3) + '...';
+  }
+  
+  export const humanReadableFileSize = (sizeInBytes: number): string => {
+      if (sizeInBytes < 1024) {
+        return sizeInBytes + ' B';
+      } else if (sizeInBytes < 1024 * 1024) {
+        return (sizeInBytes / 1024).toFixed(2) + ' KB';
+      } else if (sizeInBytes < 1024 * 1024 * 1024) {
+        return (sizeInBytes / (1024 * 1024)).toFixed(2) + ' MB';
+      } else {
+          return (sizeInBytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+      }
+  }
+  
+export function getFileExtension(fileName: string): string {
+      const lastDotIndex = fileName.lastIndexOf('.');
+      
+      if (lastDotIndex === -1 || lastDotIndex === 0) {
+        return ''; // No extension found or the dot is the first character
+      }
+    
+      const extension = fileName.substring(lastDotIndex + 1);
+      return extension.toLowerCase(); // Return the extension in lowercase
+  }
+  
+export function formatEpochToHumanReadable(epochMilliseconds: number) {
+      if (epochMilliseconds === 0) {
+          return ''
+      }
+      const date = new Date(epochMilliseconds);
+  
+      const year = date.getFullYear().toString().slice(-2);
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+  
+      const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}`;
+      return formattedDate;
+  }
+
+export function isImageFile(file: FileEntry): boolean {
+    const extension = getFileExtension(file.name);
+    return file.is_directory === false && ['jpg', 'jpeg', 'png', 'gif'].includes(extension)
 }
