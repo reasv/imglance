@@ -78,13 +78,15 @@ export function FileView() {
     }
 
     function selectImage(entry: FileEntry) {
+      console.log("Select Image")
       const i = pinnedImages.findIndex((e) => entryIsEqual(e, entry))
       if (i === -1) {
         setPinnedImages(s => [entry, ...s])
       } else {
         setPinnedImages(s => {
-          s.splice(i)
-          return s
+          const newValue = [...s]
+          newValue.splice(i, 1)
+          return newValue
         })
       }
     }
