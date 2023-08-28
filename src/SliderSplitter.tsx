@@ -23,7 +23,7 @@ const SliderSplitter: React.FC<SliderSplitterProps> = ({ leftComponent, rightCom
   }, [splitRatio]);
 
   return (
-    <>
+    <Box>
     <Slider
         orientation="horizontal"
         min={0}
@@ -33,6 +33,7 @@ const SliderSplitter: React.FC<SliderSplitterProps> = ({ leftComponent, rightCom
         onChange={(value) => setSplitRatio(value)}
         aria-label="Slider"
         mx={4}
+        width={'90vw'}
       >
         <SliderTrack>
           <SliderFilledTrack />
@@ -49,7 +50,7 @@ const SliderSplitter: React.FC<SliderSplitterProps> = ({ leftComponent, rightCom
         {splitRatio < 1 && rightComponent}
       </Box>
     </Box>
-    </>
+    </Box>
   );
 };
 

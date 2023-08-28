@@ -79,7 +79,7 @@ function FileList() {
       setSelection(entry)
     }
 
-    return (<VStack spacing={8}>
+    return (<VStack spacing={3}>
       <PathBox onSearch={(p) => navigate(`/?path=${p}`)}></PathBox>
       {imageView ? 
       <ImageView firstEntry={selected} entries={data} path={path}></ImageView> : 
@@ -91,7 +91,7 @@ export const App = () => (
   <ChakraProvider theme={theme}>
     <Box textAlign="center" fontSize="xl">
       <Grid minH="100vh" p={3}>
-        <ColorModeSwitcher justifySelf="flex-end" />
+        {/* <ColorModeSwitcher justifySelf="flex-end" /> */}
         <VStack spacing={8}>
           <Router>
             <Routes>

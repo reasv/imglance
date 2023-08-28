@@ -26,7 +26,7 @@ const ImageGrid: React.FC<ImageMasonryProps> = ({ entries, path, onClick }) => {
     const fileExtension = entry.name.split('.').pop()?.toLowerCase() || '';
     return entry.is_directory === false && extensions.includes(`.${fileExtension}`);
   });
-  const [imageSize, setImageSize] = useState(100); // Initial image size in pixels
+  const [imageSize, setImageSize] = useState(500); // Initial image size in pixels
 
   const handleSliderChange = (value: number) => {
     setImageSize(value);
@@ -36,15 +36,18 @@ const ImageGrid: React.FC<ImageMasonryProps> = ({ entries, path, onClick }) => {
     gridTemplateColumns: `repeat(auto-fill, minmax(${imageSize}px, 1fr))`,
     gap: '10px',
     maxWidth: '100%',
-  };
+    justifyContent: 'center',
+    alignItems: 'center',
+    justifyItems: 'center', // Center horizontally
 
+  };
   return (
-    <div>
+    <>{<Box  alignContent={'center'} height={'calc(100vh - 8rem)'}>
       <Slider
         value={imageSize}
         onChange={handleSliderChange}
         min={50}
-        max={2048}
+        max={4096}
         step={10}
         width="80%"
         mx="auto"
@@ -55,12 +58,16 @@ const ImageGrid: React.FC<ImageMasonryProps> = ({ entries, path, onClick }) => {
         </SliderTrack>
         <SliderThumb />
       </Slider>
-      <Box style={containerStyle}>
+      <Box
+      overflowY={'auto'}
+      flexGrow={1}
+      style={containerStyle}
+      >
         {imageEntries.map((entry, index) => (
-          <Image onClick={() => onClick ? onClick(entry) : null } key={index} src={`http://127.0.0.1:8080/file?path=${path}${entry.name}`}  alt={entry.name} objectFit="contain" />
+          <Image onClick={() => onClick ? onClick(entry) : null } key={index} src={`http://127.0.0.1:8080/file?path=${path}${entry.name}`}  alt={entry.name} objectFit="contain" width={"100%"} />
         ))}
       </Box>
-    </div>
+    </Box>}</>
   );
 };
 
