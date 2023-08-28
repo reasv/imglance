@@ -10,7 +10,6 @@ import {
   theme,
   HStack,
 } from "@chakra-ui/react"
-import { ColorModeSwitcher } from "./ColorModeSwitcher"
 import { BrowserRouter as Router, Route, useLocation, Routes, useNavigate } from 'react-router-dom'
 
 
@@ -18,7 +17,6 @@ import upath from 'upath'
 import { getAPIURLFromPath, getCurrentPath, getQueryParamValue } from "./utils"
 
 import PathBox from "./PathBox"
-import FilesView from "./FilesView"
 import ImageView from "./ImageView"
 import SliderSplitter from "./SliderSplitter"
 import FileTable from "./FileTable"

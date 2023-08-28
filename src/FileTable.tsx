@@ -13,7 +13,6 @@ import {
 import { FiFolder, FiFile, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import { FileEntry } from './App';
 import { Link } from 'react-router-dom';
-import upath from 'upath'
 import { getAPIURLFromPath, getQueryParamValue } from './utils';
 
 function shortenString(input: string, maxLength: number): string {
@@ -67,7 +66,7 @@ function FileListEntry({path, entry}: {path: string, entry: FileEntry}) {
   
   const directoryUrl = (() => {
     const pathPinned = getQueryParamValue('pinned') === 'true'
-    const directoryPath = `/${upath.join(entry.absolute_path, entry.name)}/`
+    const directoryPath = `${entry.absolute_path}${entry.name}/`
     if (!pathPinned) {
       return `/?path=${directoryPath}`
     }
@@ -89,7 +88,7 @@ function FileListEntry({path, entry}: {path: string, entry: FileEntry}) {
       entry.is_directory ? 
         <Link to={directoryUrl}>{shortenString(entry.name, 20)}</Link> 
         :
-        <a target='_blank' rel="noreferrer" href={getAPIURLFromPath(`/${upath.join(entry.absolute_path, entry.name)}`, false)}>{shortenString(entry.name, 20)}</a>
+        <a target='_blank' rel="noreferrer" href={getAPIURLFromPath(`${entry.absolute_path}${entry.name}`, false)}>{shortenString(entry.name, 20)}</a>
     }</>)
   }
   
