@@ -66,7 +66,7 @@ const ImageGrid: React.FC<ImageMasonryProps> = ({ entries, highlighted, onClick 
           <Image
           border={isHighlighted(entry) ? '4px' : undefined}
           borderColor={isHighlighted(entry) ? 'blue.500' : undefined}
-          onClick={() => onClick ? onClick(entry) : null } key={index} src={`http://127.0.0.1:8080/file?path=${entry.absolute_path}${entry.name}`}  alt={entry.name} objectFit="contain" width={"100%"} />
+          onClick={() => onClick ? onClick(entry) : null } key={index} src={`http://127.0.0.1:8080/file?path=${entry.absolute_path}`}  alt={entry.name} objectFit="contain" width={"100%"} />
         ))}
       </Box>
     </Box>}</>

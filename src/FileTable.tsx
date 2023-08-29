@@ -15,59 +15,6 @@ import { FileEntry, SortedEntries } from './FileView';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { formatEpochToHumanReadable, getAPIURLFromPath, getFileExtension, getPinnedPaths, humanReadableFileSize, shortenString } from './utils';
 
-
-function FileListEntry({entry}: {entry: FileEntry}) {
-  const [searchParams] = useSearchParams()
-  const directoryUrl = (() => {
-    const directoryPath = entry.name === ".." ? entry.absolute_path : `${entry.absolute_path}${entry.name}/`
-    searchParams.set('path', directoryPath)
-    return `/?${searchParams.toString()}`
-  })()
-    return (<>{
-      entry.is_directory ? 
-        <Link to={directoryUrl}>{shortenString(entry.name, 20)}</Link> 
-        :
-        <a target='_blank' rel="noreferrer" href={getAPIURLFromPath(`${entry.absolute_path}${entry.name}`, false)}>{shortenString(entry.name, 20)}</a>
-    }</>)
-  }
-
-
-const PinCheckbox = ({entry}: {entry: FileEntry}) => {
-  const directoryPath = entry.name === ".." ? entry.absolute_path : `${entry.absolute_path}${entry.name}/`
-
-  const location = useLocation()
-  const pinnedPaths = useMemo(() => {
-      return getPinnedPaths(new URLSearchParams(location.search))
-  }, [location.search])
-
-  let pathPinned = pinnedPaths.has(directoryPath)
-
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  const handleCheckboxChange = () => {
-    if (pathPinned) {
-      pinnedPaths.delete(directoryPath)
-
-    } else {
-      pinnedPaths.add(directoryPath)
-    }
-    if (pinnedPaths.size === 0) {
-      searchParams.delete('imgpath')
-    }
-    if (pinnedPaths.size === 1) {
-      searchParams.delete('imgpath')
-      searchParams.append('imgpath', Array.from(pinnedPaths)[0])
-    } else {
-      searchParams.delete('imgpath')
-      for (let path of Array.from(pinnedPaths)) {
-        searchParams.append('imgpath', path)
-      }
-    }
-    setSearchParams(searchParams)
-  }
-  return (<Checkbox mr={4} isChecked={pathPinned} onChange={handleCheckboxChange}/>)
-}
-  
 const FileTable = ({sortedEntries}: {files: FileEntry[], sortedEntries: SortedEntries}) => {
 
   const {handleSort, sortAsc, sortBy, entries} = sortedEntries
@@ -132,3 +79,52 @@ const FileTable = ({sortedEntries}: {files: FileEntry[], sortedEntries: SortedEn
 };
 
 export default FileTable;
+
+function FileListEntry({entry}: {entry: FileEntry}) {
+  const [searchParams] = useSearchParams()
+  const directoryUrl = useMemo(() => {
+    searchParams.set('path', entry.absolute_path)
+    return `/?${searchParams.toString()}`
+  }, [searchParams, entry.absolute_path])
+
+  return (<>{
+      entry.is_directory ? 
+        <Link to={directoryUrl}>{shortenString(entry.name, 20)}</Link> 
+        :
+        <a target='_blank' rel="noreferrer" href={getAPIURLFromPath(entry.absolute_path, false)}>{shortenString(entry.name, 20)}</a>
+    }</>)
+}
+
+const PinCheckbox = ({entry}: {entry: FileEntry}) => {
+  const location = useLocation()
+  const pinnedPaths = useMemo(() => {
+      return getPinnedPaths(new URLSearchParams(location.search))
+  }, [location.search])
+
+  let pathPinned = pinnedPaths.has(entry.absolute_path)
+
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const handleCheckboxChange = () => {
+    if (pathPinned) {
+      pinnedPaths.delete(entry.absolute_path)
+
+    } else {
+      pinnedPaths.add(entry.absolute_path)
+    }
+    if (pinnedPaths.size === 0) {
+      searchParams.delete('imgpath')
+    }
+    if (pinnedPaths.size === 1) {
+      searchParams.delete('imgpath')
+      searchParams.append('imgpath', Array.from(pinnedPaths)[0])
+    } else {
+      searchParams.delete('imgpath')
+      for (let path of Array.from(pinnedPaths)) {
+        searchParams.append('imgpath', path)
+      }
+    }
+    setSearchParams(searchParams)
+  }
+  return (<Checkbox mr={4} isChecked={pathPinned} onChange={handleCheckboxChange}/>)
+}

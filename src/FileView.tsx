@@ -23,6 +23,7 @@ export interface SortedEntries {
 export interface FileEntry {
   name: string,
   absolute_path: string,
+  parent_path: string,
   is_directory: boolean,
   last_modified: number,
   fsize: number
@@ -55,7 +56,8 @@ export function FileView() {
           is_directory: true,
           last_modified: 0,
           fsize: 0,
-          absolute_path: folderData.parent_path
+          absolute_path: folderData.parent_path,
+          parent_path: '' // Unknown
         })
         setData(folderData.entries)
       } catch (error) {
@@ -107,7 +109,7 @@ export function FileView() {
         }
         setFetchedPaths(fetchedPaths => fetchedPaths.add(pinnedPath))
       }
-      setPinData(pinData => pinData.filter(pd => pathSet.has(pd[0].absolute_path)))
+      setPinData(pinData => pinData.filter(pd => pathSet.has(pd[0].parent_path)))
       const fetchedPathsArray = Array.from(fetchedPaths.values()).filter(fp => pathSet.has(fp))
       if (fetchedPathsArray.length !== fetchedPaths.size) {
         setFetchedPaths(new Set(fetchedPathsArray))
@@ -159,7 +161,7 @@ export function FileView() {
   }, [sortedLocalEntries.entries, sortedPinnedEntries])
 
   const imageViewEntries = useMemo(() => {
-    if (pinnedImages.find((e) => e.absolute_path === path)) {
+    if (pinnedImages.find((e) => e.parent_path === path)) {
       return [...pinnedImages, ...sortedPinnedEntries]
     }
     return [...pinnedImages, ...imageEntries]

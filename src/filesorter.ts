@@ -16,8 +16,8 @@ export function getFileCompare(sortBy: keyof FileEntry | 'ext', sortAsc: boolean
         if (sortBy === 'fsize') {
             return sortAsc ? a.fsize - b.fsize : b.fsize - a.fsize;
         } else if (sortBy === 'name') {
-            const aName = useFullPath ? `${a.absolute_path}${a.name}` : a.name
-            const bName = useFullPath ? `${b.absolute_path}${b.name}` : b.name
+            const aName = useFullPath ? `${a.absolute_path}` : a.name
+            const bName = useFullPath ? `${b.absolute_path}` : b.name
             return sortAsc ? aName.localeCompare(bName) : bName.localeCompare(aName);
         } else if (sortBy === 'ext') {
             const aValue = getFileExtension(a['name']);

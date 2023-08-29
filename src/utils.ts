@@ -89,7 +89,8 @@ export async function getFileList(path: string): Promise<FolderData> {
     json.absolute_path = `${parsedPath.dir}/${parsedPath.base}/`
     json.parent_path = `${parsedPath.dir}/`
     for (let entry of json.entries) {
-      entry.absolute_path = json.absolute_path
+      entry.absolute_path = entry.is_directory ? `${json.absolute_path}${entry.name}/` : `${json.absolute_path}${entry.name}`
+      entry.parent_path = json.absolute_path
     }
     return json
 }
@@ -98,13 +99,13 @@ export function dedupeEntries(entries: FileEntry[]): FileEntry[] {
     const deduped = new Map()
 
     for (let entry of entries) {
-        deduped.set(`${entry.absolute_path}${entry.name}`, entry)
+        deduped.set(entry.absolute_path, entry)
     }
     return Array.from(deduped.values())
 }
 
 export function canonicalName(entry: FileEntry) {
-    return `${entry.absolute_path}${entry.name}`
+    return entry.absolute_path
 }
 
 export function entryIsEqual(a: FileEntry, b: FileEntry) {
