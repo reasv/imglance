@@ -15,7 +15,7 @@ const PathBox: React.FC<{ onEnableGlobalSorting: (pinned: boolean) => void, onOp
 
     const handleSubmit = () => {
         onSearchPath(query);
-    };
+    }
     
     const [searchParams, setSearchParams] = useSearchParams();
 
