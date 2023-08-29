@@ -35,13 +35,10 @@ export function getAPIURLFromPath(path: string, is_directory: boolean) {
     return "http://127.0.0.1:8080/" + (is_directory ? "folder?path=" : "file?path=") + path
 }
 
-export function getPinnedPaths(): Set<string> {
-    const pinnedPaths = getQueryParamValue('imgpath')
-    if (pinnedPaths && pinnedPaths.length > 0) {
-        return new Set(pinnedPaths.split(','))
-    } else {
-        return new Set()
-    }
+export function getPinnedPaths(params?: URLSearchParams): Set<string> {
+    const searchParams = params || new URLSearchParams(window.location.search);
+    const paths = searchParams.getAll('imgpath');
+    return new Set(paths)
 }
 
 export function shortenString(input: string, maxLength: number): string {

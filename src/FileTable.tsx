@@ -40,7 +40,10 @@ const PinCheckbox = ({entry, pinnedPaths}: {entry: FileEntry, pinnedPaths: Set<s
 
   const handleCheckboxChange = () => {
     if (pathPinned) {
+      console.log("paths: ", Array.from(pinnedPaths))
       pinnedPaths.delete(directoryPath)
+      console.log("pathsd: ", Array.from(pinnedPaths))
+
     } else {
       pinnedPaths.add(directoryPath)
     }
@@ -48,10 +51,15 @@ const PinCheckbox = ({entry, pinnedPaths}: {entry: FileEntry, pinnedPaths: Set<s
       searchParams.delete('imgpath')
     }
     if (pinnedPaths.size === 1) {
-      searchParams.set('imgpath', Array.from(pinnedPaths)[0])
+      searchParams.delete('imgpath')
+      searchParams.append('imgpath', Array.from(pinnedPaths)[0])
     } else {
-      searchParams.set('imgpath', Array.from(pinnedPaths).join(','))
+      searchParams.delete('imgpath')
+      for (let path of Array.from(pinnedPaths)) {
+        searchParams.append('imgpath', path)
+      }
     }
+    console.log(searchParams.toString())
     setSearchParams(searchParams)
   }
   return (<Checkbox mr={4} isChecked={pathPinned} onChange={handleCheckboxChange}/>)
@@ -60,7 +68,6 @@ const PinCheckbox = ({entry, pinnedPaths}: {entry: FileEntry, pinnedPaths: Set<s
 const FileTable = ({sortedEntries}: {files: FileEntry[], sortedEntries: SortedEntries}) => {
 
   const {handleSort, sortAsc, sortBy, entries} = sortedEntries
-
   const pinnedPaths = getPinnedPaths()
   return (
     <Table variant="simple">

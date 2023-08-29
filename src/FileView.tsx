@@ -98,7 +98,7 @@ export function FileView() {
       }
     }
 
-    const [pinData, setPinData] = React.useState<Array<FileEntry>>([])
+    const [pinData, setPinData] = React.useState<FileEntry[][]>([])
     const [fetchedPaths, setFetchedPaths] = React.useState<Set<string>>(new Set<string>())
 
     React.useEffect(() => {
@@ -108,9 +108,11 @@ export function FileView() {
             continue
           }
           const folderData = await getFileList(pinnedPath)
-          setPinData(pinData => [...folderData.entries, ...pinData])
+          const folderEntries = folderData.entries.filter(entry => isImageFile(entry))
+          setPinData(pinData => [folderEntries, ...pinData])
           setFetchedPaths(fetchedPaths => fetchedPaths.add(pinnedPath))
         }
+        setPinData(pinData => pinData.filter(pd => pinnedPaths.has(pd[0].absolute_path) ))
       }
       if (pinnedPaths.size > 0) {
         fetchPinnedData()
@@ -120,18 +122,10 @@ export function FileView() {
       }
     }, [pinnedPaths, fetchedPaths])
 
-    const onPathPinned = (pinned: boolean) => {
-      // if (pinned) {
-      //   navigate(`/?path=${path}&imageview=${imageView}`)
-      // } else {
-      //   navigate(`/?path=${path}&imageview=${imageView}`)
-      // }
-    }
-
   const [sortBy, setSortBy] = useState<keyof FileEntry | 'ext'>('name');
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   
-  const sortedEntries: SortedEntries = useMemo(() => {
+  const sortedLocalEntries: SortedEntries = useMemo(() => {
     const handleSort = (column: keyof FileEntry | 'ext') => {
       if (sortBy === column) {
         setSortAsc(!sortAsc);
@@ -143,24 +137,41 @@ export function FileView() {
     return {handleSort, sortBy, sortAsc, entries: [...data].sort(getFileCompare(sortBy, sortAsc))}
   }, [data, sortBy, sortAsc])
 
-    const imageEntries = React.useMemo(() => {
-      const entries = dedupeEntries([...pinData.filter(entry => isImageFile(entry)), ...sortedEntries.entries.filter(entry => isImageFile(entry))]);
-      return entries.sort(getFileCompare(sortBy, sortAsc, true))
-    }, [sortedEntries.entries, pinData, sortBy, sortAsc])
+    const sortedPinnedEntries = useMemo(() => {
+      let filesFromPinned: FileEntry[] = []
+      // Flatten
+      for (const folderPins of pinData) {
+        // Sort each folder individually and preserve folder order
+        folderPins.sort(getFileCompare(sortBy, sortAsc, true))
+        filesFromPinned = [...filesFromPinned, ...folderPins ]
+      }
+      return filesFromPinned
+    }, [pinData, sortAsc, sortBy])
+
+    const imageEntries = useMemo(() => {
+      const entries = dedupeEntries([...sortedPinnedEntries, ...sortedLocalEntries.entries.filter(entry => isImageFile(entry))]);
+      return entries
+    }, [sortedLocalEntries.entries, sortedPinnedEntries])
 
     const imageViewEntries = useMemo(() => {
       if (pinnedImages.find((e) => e.absolute_path === path)) {
-        const pinnedFolderContent = dedupeEntries(pinData.filter(entry => isImageFile(entry)))
-        pinnedFolderContent.sort(getFileCompare(sortBy, sortAsc, true))
-        return [...pinnedImages, ...pinnedFolderContent]
+        return [...pinnedImages, ...sortedPinnedEntries]
       }
       return [...pinnedImages, ...imageEntries]
-    }, [pinnedImages, imageEntries, path, pinData, sortBy, sortAsc])
+    }, [pinnedImages, imageEntries, sortedPinnedEntries, path])
+
+    const onPathPinned = (pinned: boolean) => {
+      // if (pinned) {
+      //   navigate(`/?path=${path}&imageview=${imageView}`)
+      // } else {
+      //   navigate(`/?path=${path}&imageview=${imageView}`)
+      // }
+    }
 
     return (<VStack spacing={3}>
       <PathBox onPinPath={onPathPinned} onOpenImageView={openImageView}></PathBox>
       {imageView ? 
       <ImageView entries={imageViewEntries}></ImageView> : 
-      <SliderSplitter leftComponent={<FileTable sortedEntries={sortedEntries} files={data} />} rightComponent={<ImageGrid highlighted={pinnedImages} entries={imageEntries} onClick={selectImage}></ImageGrid>} />}
+      <SliderSplitter leftComponent={<FileTable sortedEntries={sortedLocalEntries} files={data} />} rightComponent={<ImageGrid highlighted={pinnedImages} entries={imageEntries} onClick={selectImage}></ImageGrid>} />}
     </VStack>)
 }

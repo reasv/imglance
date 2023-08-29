@@ -38,7 +38,7 @@ const PathBox: React.FC<{ onPinPath: (pinned: boolean) => void, onOpenImageView:
         searchParams.delete('imgpath')
         setSearchParams(searchParams)
     }
-
+    const pinnedPaths = getPinnedPaths()
     return (
         <Flex alignItems="center">
         <Input
@@ -61,16 +61,16 @@ const PathBox: React.FC<{ onPinPath: (pinned: boolean) => void, onOpenImageView:
             colorScheme="blue"
             ml={4}
         />
-        {getPinnedPaths().size > 0 && <IconButton
+        {pinnedPaths.size > 0 && <IconButton
             aria-label="Delete pins"
             icon={<CloseIcon />}
             onClick={onDeletePins}
             colorScheme="blue"
             ml={4}
         />}
-        {/* <Checkbox ml={4} isChecked={isChecked} onChange={handleCheckboxChange}>
-            Enable path pinning
-        </Checkbox> */}
+        {pinnedPaths.size > 0 && <Checkbox ml={4} isChecked={isChecked} onChange={handleCheckboxChange}>
+            Global sorting
+        </Checkbox>}
         </Flex>
     );
 };
