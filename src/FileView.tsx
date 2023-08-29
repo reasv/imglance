@@ -53,6 +53,14 @@ export function FileView() {
         }
         if (folderData.parent_path !== null) {
           folderData.entries.unshift({
+            name: ".",
+            is_directory: true,
+            last_modified: 0,
+            fsize: 0,
+            absolute_path: folderData.absolute_path,
+            parent_path: '' // Unknown
+          })
+          folderData.entries.unshift({
             name: "..",
             is_directory: true,
             last_modified: 0,

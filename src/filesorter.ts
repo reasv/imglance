@@ -10,6 +10,12 @@ export function getFileCompare(sortBy: keyof FileEntry | 'ext', sortAsc: boolean
         if (b.name === "..") {
             return 1
         }
+        if (a.name === ".") {
+            return -1
+        }
+        if (b.name === ".") {
+            return 1
+        }
         if (sortBy === 'last_modified') {  
             return sortAsc ? a.last_modified - b.last_modified : b.last_modified - a.last_modified;
         }
