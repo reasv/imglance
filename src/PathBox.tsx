@@ -20,9 +20,6 @@ const PathBox: React.FC<{ onEnableGlobalSorting: (pinned: boolean) => void, onOp
     const [searchParams, setSearchParams] = useSearchParams();
 
     function onSearchPath(spath: string) {
-        if (!spath.endsWith('/')) {
-          spath = spath + '/'
-        }
         searchParams.set('path', spath)
         setSearchParams(searchParams)
     }

@@ -85,13 +85,6 @@ export async function getFileList(path: string): Promise<FolderData> {
     if (!response.ok) throw new Error(`HTTP error ${response.status}`)
     const json: FolderData = await response.json()
     console.log(`Raw absolute path: ${json.absolute_path}`)
-    const parsedPath = upath.parse(json.absolute_path)
-    json.absolute_path = `${parsedPath.dir}/${parsedPath.base}/`
-    json.parent_path = `${parsedPath.dir}/`
-    for (let entry of json.entries) {
-      entry.absolute_path = entry.is_directory ? `${json.absolute_path}${entry.name}/` : `${json.absolute_path}${entry.name}`
-      entry.parent_path = json.absolute_path
-    }
     return json
 }
 
