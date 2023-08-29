@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Input, IconButton, Flex, Checkbox } from '@chakra-ui/react';
 import { ArrowForwardIcon, ViewIcon, CloseIcon } from '@chakra-ui/icons';
 import { useLocation, useSearchParams } from 'react-router-dom';
@@ -38,7 +38,10 @@ const PathBox: React.FC<{ onEnableGlobalSorting: (pinned: boolean) => void, onOp
         searchParams.delete('imgpath')
         setSearchParams(searchParams)
     }
-    const pinnedPaths = getPinnedPaths()
+    const pinnedPaths = useMemo(() => {
+        return getPinnedPaths(new URLSearchParams(location.search))
+    }, [location.search])
+
     return (
         <Flex alignItems="center">
         <Input

@@ -18,7 +18,6 @@ const SliderSplitter: React.FC<SliderSplitterProps> = ({ leftComponent, rightCom
 
   // Save to localStorage whenever it changes
   useEffect(() => {
-    console.log("test")
     localStorage.setItem('ratio', splitRatio.toString());
   }, [splitRatio]);
 

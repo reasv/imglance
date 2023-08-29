@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Table,
   Thead,
@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { FiFolder, FiFile, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import { FileEntry, SortedEntries } from './FileView';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useMatch, useSearchParams } from 'react-router-dom';
 import { formatEpochToHumanReadable, getAPIURLFromPath, getFileExtension, getPinnedPaths, getQueryParamValue, humanReadableFileSize, shortenString } from './utils';
 
 
@@ -32,17 +32,21 @@ function FileListEntry({entry}: {entry: FileEntry}) {
   }
 
 
-const PinCheckbox = ({entry, pinnedPaths}: {entry: FileEntry, pinnedPaths: Set<string>}) => {
+const PinCheckbox = ({entry}: {entry: FileEntry}) => {
   const directoryPath = entry.name === ".." ? entry.absolute_path : `${entry.absolute_path}${entry.name}/`
+
+  const location = useLocation()
+  const pinnedPaths = useMemo(() => {
+      return getPinnedPaths(new URLSearchParams(location.search))
+  }, [location.search])
+
   let pathPinned = pinnedPaths.has(directoryPath)
 
   const [searchParams, setSearchParams] = useSearchParams()
 
   const handleCheckboxChange = () => {
     if (pathPinned) {
-      console.log("paths: ", Array.from(pinnedPaths))
       pinnedPaths.delete(directoryPath)
-      console.log("pathsd: ", Array.from(pinnedPaths))
 
     } else {
       pinnedPaths.add(directoryPath)
@@ -59,7 +63,6 @@ const PinCheckbox = ({entry, pinnedPaths}: {entry: FileEntry, pinnedPaths: Set<s
         searchParams.append('imgpath', path)
       }
     }
-    console.log(searchParams.toString())
     setSearchParams(searchParams)
   }
   return (<Checkbox mr={4} isChecked={pathPinned} onChange={handleCheckboxChange}/>)
@@ -68,7 +71,6 @@ const PinCheckbox = ({entry, pinnedPaths}: {entry: FileEntry, pinnedPaths: Set<s
 const FileTable = ({sortedEntries}: {files: FileEntry[], sortedEntries: SortedEntries}) => {
 
   const {handleSort, sortAsc, sortBy, entries} = sortedEntries
-  const pinnedPaths = getPinnedPaths()
   return (
     <Table variant="simple">
       <Thead>
@@ -115,7 +117,7 @@ const FileTable = ({sortedEntries}: {files: FileEntry[], sortedEntries: SortedEn
         {entries.map((file, index) => (
           <Tr key={index}>
             <Td>
-              {file.is_directory && <PinCheckbox pinnedPaths={pinnedPaths} entry={file} />}
+              {file.is_directory && <PinCheckbox entry={file} />}
              <Icon as={file.is_directory ? FiFolder : FiFile} mr={2} />
               <FileListEntry entry={file}></FileListEntry>
             </Td>

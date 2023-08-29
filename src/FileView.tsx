@@ -8,7 +8,7 @@ import { BrowserRouter as Router, useLocation, useNavigate, useSearchParams } fr
 
 
 import upath from 'upath'
-import { dedupeEntries, entryIsEqual, getCurrentPath, getFileList, getPinnedPaths, getQueryParamValue, isImageFile } from "./utils"
+import { dedupeEntries, entryIsEqual, getCurrentPath, getFileList, getQueryParamValue, isImageFile } from "./utils"
 
 import PathBox from "./PathBox"
 import ImageView from "./ImageView"
@@ -32,17 +32,16 @@ export interface FileEntry {
 }
 
 export function FileView() {
-    const [data, setData] = React.useState<Array<FileEntry>>([])
-
-    const [searchParams, setSearchParams] = useSearchParams();
-
     const location = useLocation()
     const pathParam = getCurrentPath(location)
-    const [path, setPath] = React.useState<string>(pathParam)
     const imageView = getQueryParamValue('imageview') === 'true'
+    const [data, setData] = React.useState<Array<FileEntry>>([])
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [path, setPath] = React.useState<string>(pathParam)
+
     const navigate = useNavigate()
 
-    React.useEffect(() => {
+    useEffect(() => {
       async function fetchData() {
         try {
           const folderData = await getFileList(pathParam)
@@ -63,7 +62,6 @@ export function FileView() {
             fsize: 0,
             absolute_path: `${parsedPath.dir}/`
           })
-          console.log(folderData.entries)
           setData(folderData.entries)
         } catch (error) {
           console.log(error)
@@ -72,8 +70,7 @@ export function FileView() {
       fetchData()
     }, [navigate, pathParam])
 
-    const pinnedPaths = getPinnedPaths()
-    const [pinnedImages, setPinnedImages] = React.useState<FileEntry[]>([])
+    
 
     function openImageView() {
       if (imageView) {
@@ -84,6 +81,7 @@ export function FileView() {
       setSearchParams(searchParams)
     }
 
+    const [pinnedImages, setPinnedImages] = React.useState<FileEntry[]>([])
     function selectImage(entry: FileEntry) {
       console.log("Select Image")
       const i = pinnedImages.findIndex((e) => entryIsEqual(e, entry))
@@ -101,7 +99,9 @@ export function FileView() {
     const [pinData, setPinData] = React.useState<FileEntry[][]>([])
     const [fetchedPaths, setFetchedPaths] = React.useState<Set<string>>(new Set<string>())
 
-    React.useEffect(() => {
+  useEffect(() => {
+      const pinnedPaths = searchParams.getAll('imgpath')
+      const pathSet = new Set(pinnedPaths)
       async function fetchPinnedData() {
         for (let pinnedPath of Array.from(pinnedPaths)) {
           if (fetchedPaths.has(pinnedPath)) {
@@ -112,15 +112,23 @@ export function FileView() {
           setPinData(pinData => [folderEntries, ...pinData])
           setFetchedPaths(fetchedPaths => fetchedPaths.add(pinnedPath))
         }
-        setPinData(pinData => pinData.filter(pd => pinnedPaths.has(pd[0].absolute_path) ))
+        setPinData(pinData => pinData.filter(pd => pathSet.has(pd[0].absolute_path) ))
+        const fetchedPathsArray = Array.from(fetchedPaths.values()).filter(fp => pathSet.has(fp))
+        if (fetchedPathsArray.length !== fetchedPaths.size) {
+          setFetchedPaths(new Set(fetchedPathsArray))
+        }
       }
-      if (pinnedPaths.size > 0) {
+      if (pinnedPaths.length > 0) {
         fetchPinnedData()
       } else {
-        setPinData([])
-        setFetchedPaths(new Set<string>())
+        if (pinData.length > 0) {
+          setPinData([])
+        }
+        if (fetchedPaths.size > 0) {
+          setFetchedPaths(new Set<string>())
+        }
       }
-    }, [pinnedPaths, fetchedPaths])
+    }, [searchParams, fetchedPaths])
 
   const [sortBy, setSortBy] = useState<keyof FileEntry | 'ext'>('name');
   const [sortAsc, setSortAsc] = useState<boolean>(true);
