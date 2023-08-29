@@ -1,5 +1,4 @@
 import { Location } from 'react-router-dom';
-import upath from 'upath'
 import { FileEntry } from './FileView';
 
 export function getQueryParamValue(queryParam: string) {
