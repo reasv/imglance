@@ -4,7 +4,7 @@ import {
   Link as CLink,
   VStack,
 } from "@chakra-ui/react"
-import { BrowserRouter as Router, useLocation, useNavigate } from 'react-router-dom'
+import { BrowserRouter as Router, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 
 import upath from 'upath'
@@ -33,6 +33,9 @@ export interface FileEntry {
 
 export function FileView() {
     const [data, setData] = React.useState<Array<FileEntry>>([])
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
     const location = useLocation()
     const pathParam = getCurrentPath(location)
     const [path, setPath] = React.useState<string>(pathParam)
@@ -68,13 +71,17 @@ export function FileView() {
       }
       fetchData()
     }, [navigate, pathParam])
-    const pathPinned = getQueryParamValue('pinned') === 'true'
 
     const pinnedPaths = getPinnedPaths()
     const [pinnedImages, setPinnedImages] = React.useState<FileEntry[]>([])
 
     function openImageView() {
-      navigate(`/?path=${path}&imageview=true&pinned=${pathPinned}&imgpath=${getQueryParamValue('imgpath')}`)
+      if (imageView) {
+        searchParams.delete("imageview")
+      } else {
+        searchParams.set("imageview", 'true')
+      }
+      setSearchParams(searchParams)
     }
 
     function selectImage(entry: FileEntry) {
@@ -105,20 +112,20 @@ export function FileView() {
           setFetchedPaths(fetchedPaths => fetchedPaths.add(pinnedPath))
         }
       }
-      if (pathPinned && pinnedPaths.size > 0) {
+      if (pinnedPaths.size > 0) {
         fetchPinnedData()
       } else {
         setPinData([])
         setFetchedPaths(new Set<string>())
       }
-    }, [pathPinned, pinnedPaths, fetchedPaths])
+    }, [pinnedPaths, fetchedPaths])
 
     const onPathPinned = (pinned: boolean) => {
-      if (pinned) {
-        navigate(`/?path=${path}&imageview=${imageView}&pinned=true`)
-      } else {
-        navigate(`/?path=${path}&imageview=${imageView}`)
-      }
+      // if (pinned) {
+      //   navigate(`/?path=${path}&imageview=${imageView}`)
+      // } else {
+      //   navigate(`/?path=${path}&imageview=${imageView}`)
+      // }
     }
 
   const [sortBy, setSortBy] = useState<keyof FileEntry | 'ext'>('name');
@@ -151,9 +158,9 @@ export function FileView() {
     }, [pinnedImages, imageEntries, path, pinData, sortBy, sortAsc])
 
     return (<VStack spacing={3}>
-      <PathBox onSearch={(p) => navigate(`/?path=${p}`)} onPinPath={onPathPinned} onOpenImageView={openImageView}></PathBox>
+      <PathBox onPinPath={onPathPinned} onOpenImageView={openImageView}></PathBox>
       {imageView ? 
       <ImageView entries={imageViewEntries}></ImageView> : 
-      <SliderSplitter leftComponent={<FileTable sortedEntries={sortedEntries} files={data} path={path}/>} rightComponent={<ImageGrid highlighted={pinnedImages} entries={imageEntries} onClick={selectImage}></ImageGrid>} />}
+      <SliderSplitter leftComponent={<FileTable sortedEntries={sortedEntries} files={data} />} rightComponent={<ImageGrid highlighted={pinnedImages} entries={imageEntries} onClick={selectImage}></ImageGrid>} />}
     </VStack>)
 }

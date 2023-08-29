@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Input, IconButton, Flex, Checkbox } from '@chakra-ui/react';
-import { ArrowForwardIcon, ViewIcon } from '@chakra-ui/icons';
-import { useLocation } from 'react-router-dom';
-import { getCurrentPath } from './utils';
+import { ArrowForwardIcon, ViewIcon, CloseIcon } from '@chakra-ui/icons';
+import { useLocation, useSearchParams } from 'react-router-dom';
+import { getCurrentPath, getPinnedPaths } from './utils';
 
-const PathBox: React.FC<{ onSearch: (query: string) => void, onPinPath: (pinned: boolean) => void, onOpenImageView: () => void }> = ({ onSearch, onPinPath, onOpenImageView }) => {
+const PathBox: React.FC<{ onPinPath: (pinned: boolean) => void, onOpenImageView: () => void }> = ({ onPinPath, onOpenImageView }) => {
     const location = useLocation()
     const pathParam = getCurrentPath(location)
     const [query, setQuery] = useState(pathParam);
@@ -14,12 +14,29 @@ const PathBox: React.FC<{ onSearch: (query: string) => void, onPinPath: (pinned:
     }, [pathParam])
 
     const handleSubmit = () => {
-        onSearch(query);
+        onSearchPath(query);
     };
+    
+
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    function onSearchPath(spath: string) {
+        if (!spath.endsWith('/')) {
+          spath = spath + '/'
+        }
+        searchParams.set('path', spath)
+        setSearchParams(searchParams)
+    }
+
     const [isChecked, setIsChecked] = useState(false);
     const handleCheckboxChange = () => {
         onPinPath(!isChecked);
         setIsChecked(!isChecked);
+    }
+
+    function onDeletePins() {
+        searchParams.delete('imgpath')
+        setSearchParams(searchParams)
     }
 
     return (
@@ -44,9 +61,16 @@ const PathBox: React.FC<{ onSearch: (query: string) => void, onPinPath: (pinned:
             colorScheme="blue"
             ml={4}
         />
-        <Checkbox ml={4} isChecked={isChecked} onChange={handleCheckboxChange}>
+        {getPinnedPaths().size > 0 && <IconButton
+            aria-label="Delete pins"
+            icon={<CloseIcon />}
+            onClick={onDeletePins}
+            colorScheme="blue"
+            ml={4}
+        />}
+        {/* <Checkbox ml={4} isChecked={isChecked} onChange={handleCheckboxChange}>
             Enable path pinning
-        </Checkbox>
+        </Checkbox> */}
         </Flex>
     );
 };

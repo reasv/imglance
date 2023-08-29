@@ -12,22 +12,17 @@ import {
 } from '@chakra-ui/react';
 import { FiFolder, FiFile, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import { FileEntry, SortedEntries } from './FileView';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { formatEpochToHumanReadable, getAPIURLFromPath, getFileExtension, getPinnedPaths, getQueryParamValue, humanReadableFileSize, shortenString } from './utils';
 
 
 function FileListEntry({entry}: {entry: FileEntry}) {
+  const [searchParams] = useSearchParams()
   const directoryUrl = (() => {
-    const pathPinned = getQueryParamValue('pinned') === 'true'
     const directoryPath = entry.name === ".." ? entry.absolute_path : `${entry.absolute_path}${entry.name}/`
-    if (!pathPinned) {
-      return `/?path=${directoryPath}`
-    }
-    const imgpath = getQueryParamValue('imgpath')
-    return `/?path=${directoryPath}&pinned=true&imgpath=${imgpath}`
+    searchParams.set('path', directoryPath)
+    return `/?${searchParams.toString()}`
   })()
-  
-
     return (<>{
       entry.is_directory ? 
         <Link to={directoryUrl}>{shortenString(entry.name, 20)}</Link> 
@@ -37,11 +32,11 @@ function FileListEntry({entry}: {entry: FileEntry}) {
   }
 
 
-const PinCheckbox = ({path, entry, pinnedPaths}: {path: string, entry: FileEntry, pinnedPaths: Set<string>}) => {
+const PinCheckbox = ({entry, pinnedPaths}: {entry: FileEntry, pinnedPaths: Set<string>}) => {
   const directoryPath = entry.name === ".." ? entry.absolute_path : `${entry.absolute_path}${entry.name}/`
   let pathPinned = pinnedPaths.has(directoryPath)
 
-  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const handleCheckboxChange = () => {
     if (pathPinned) {
@@ -50,23 +45,22 @@ const PinCheckbox = ({path, entry, pinnedPaths}: {path: string, entry: FileEntry
       pinnedPaths.add(directoryPath)
     }
     if (pinnedPaths.size === 0) {
-      navigate(`/?path=${path}&pinned=true`)
-      return 
+      searchParams.delete('imgpath')
     }
     if (pinnedPaths.size === 1) {
-      navigate(`/?path=${path}&pinned=true&imgpath=${Array.from(pinnedPaths)[0]}`)
-      return
+      searchParams.set('imgpath', Array.from(pinnedPaths)[0])
+    } else {
+      searchParams.set('imgpath', Array.from(pinnedPaths).join(','))
     }
-    navigate(`/?path=${path}&pinned=true&imgpath=${Array.from(pinnedPaths).join(',')}`)
+    setSearchParams(searchParams)
   }
   return (<Checkbox mr={4} isChecked={pathPinned} onChange={handleCheckboxChange}/>)
 }
   
-const FileTable = ({path, sortedEntries}: {files: FileEntry[], path: string, sortedEntries: SortedEntries}) => {
+const FileTable = ({sortedEntries}: {files: FileEntry[], sortedEntries: SortedEntries}) => {
 
   const {handleSort, sortAsc, sortBy, entries} = sortedEntries
 
-  const pinning = getQueryParamValue('pinned') === 'true'
   const pinnedPaths = getPinnedPaths()
   return (
     <Table variant="simple">
@@ -114,7 +108,7 @@ const FileTable = ({path, sortedEntries}: {files: FileEntry[], path: string, sor
         {entries.map((file, index) => (
           <Tr key={index}>
             <Td>
-              {pinning && file.is_directory && <PinCheckbox pinnedPaths={pinnedPaths} entry={file} path={path} />}
+              {file.is_directory && <PinCheckbox pinnedPaths={pinnedPaths} entry={file} />}
              <Icon as={file.is_directory ? FiFolder : FiFile} mr={2} />
               <FileListEntry entry={file}></FileListEntry>
             </Td>
