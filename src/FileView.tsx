@@ -124,6 +124,8 @@ export function FileView() {
 
   const [sortBy, setSortBy] = useState<keyof FileEntry | 'ext'>('name');
   const [sortAsc, setSortAsc] = useState<boolean>(true);
+
+  const [globalSorting, setGlobalSorting] = useState(false)
   
   const sortedLocalEntries: SortedEntries = useMemo(() => {
     const handleSort = (column: keyof FileEntry | 'ext') => {
@@ -142,11 +144,11 @@ export function FileView() {
       // Flatten
       for (const folderPins of pinData) {
         // Sort each folder individually and preserve folder order
-        folderPins.sort(getFileCompare(sortBy, sortAsc, true))
+        if (!globalSorting) folderPins.sort(getFileCompare(sortBy, sortAsc, true))
         filesFromPinned = [...filesFromPinned, ...folderPins ]
       }
       return filesFromPinned
-    }, [pinData, sortAsc, sortBy])
+    }, [pinData, sortAsc, sortBy, globalSorting])
 
     const imageEntries = useMemo(() => {
       const entries = dedupeEntries([...sortedPinnedEntries, ...sortedLocalEntries.entries.filter(entry => isImageFile(entry))]);
@@ -160,16 +162,12 @@ export function FileView() {
       return [...pinnedImages, ...imageEntries]
     }, [pinnedImages, imageEntries, sortedPinnedEntries, path])
 
-    const onPathPinned = (pinned: boolean) => {
-      // if (pinned) {
-      //   navigate(`/?path=${path}&imageview=${imageView}`)
-      // } else {
-      //   navigate(`/?path=${path}&imageview=${imageView}`)
-      // }
+    const onGlobalSort = (enabled: boolean) => {
+      setGlobalSorting(enabled)
     }
 
     return (<VStack spacing={3}>
-      <PathBox onPinPath={onPathPinned} onOpenImageView={openImageView}></PathBox>
+      <PathBox onEnableGlobalSorting={onGlobalSort} onOpenImageView={openImageView}></PathBox>
       {imageView ? 
       <ImageView entries={imageViewEntries}></ImageView> : 
       <SliderSplitter leftComponent={<FileTable sortedEntries={sortedLocalEntries} files={data} />} rightComponent={<ImageGrid highlighted={pinnedImages} entries={imageEntries} onClick={selectImage}></ImageGrid>} />}

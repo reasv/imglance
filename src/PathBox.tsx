@@ -4,7 +4,7 @@ import { ArrowForwardIcon, ViewIcon, CloseIcon } from '@chakra-ui/icons';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { getCurrentPath, getPinnedPaths } from './utils';
 
-const PathBox: React.FC<{ onPinPath: (pinned: boolean) => void, onOpenImageView: () => void }> = ({ onPinPath, onOpenImageView }) => {
+const PathBox: React.FC<{ onEnableGlobalSorting: (pinned: boolean) => void, onOpenImageView: () => void }> = ({ onEnableGlobalSorting: onPinPath, onOpenImageView }) => {
     const location = useLocation()
     const pathParam = getCurrentPath(location)
     const [query, setQuery] = useState(pathParam);
