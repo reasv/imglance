@@ -1,13 +1,10 @@
 import * as React from "react"
 import { useState, useMemo, useEffect } from "react"
 import {
-  Link as CLink,
   VStack,
 } from "@chakra-ui/react"
-import { BrowserRouter as Router, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 
-
-import upath from 'upath'
 import { dedupeEntries, entryIsEqual, getCurrentPath, getFileList, getQueryParamValue, isImageFile } from "./utils"
 
 import PathBox from "./PathBox"
@@ -39,19 +36,17 @@ export function FileView() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [path, setPath] = React.useState<string>(pathParam)
 
-  const navigate = useNavigate()
-
   useEffect(() => {
     async function fetchData() {
       try {
         const folderData = await getFileList(pathParam)
-        const parsedPath = upath.parse(folderData.absolute_path)
-        const fullPath = `${parsedPath.dir}/${parsedPath.base}/`
-        console.log(`Pathparam: ${pathParam}, Path: ${fullPath}, Raw: ${folderData.absolute_path}`)
-        if (pathParam !== fullPath) {
-          console.log(`Pathparam: ${pathParam} !== Path: ${fullPath}`)
-          navigate(`/?path=${fullPath}`)
-          setPath(fullPath)
+        console.log(`Path query: ${pathParam}, Path: ${folderData.absolute_path}`)
+        if (pathParam !== folderData.absolute_path) {
+          console.log(`Path query: ${pathParam} !== Path: ${folderData.absolute_path}`)
+
+          searchParams.set('path', folderData.absolute_path)
+          setSearchParams(searchParams)
+          setPath(folderData.absolute_path)
         } else {
           setPath(pathParam)
         }
@@ -60,7 +55,7 @@ export function FileView() {
           is_directory: true,
           last_modified: 0,
           fsize: 0,
-          absolute_path: `${parsedPath.dir}/`
+          absolute_path: folderData.parent_path
         })
         setData(folderData.entries)
       } catch (error) {
@@ -68,9 +63,7 @@ export function FileView() {
       }
     }
     fetchData()
-  }, [navigate, pathParam])
-
-
+  }, [pathParam])
 
   function openImageView() {
     if (imageView) {

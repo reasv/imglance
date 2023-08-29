@@ -7,28 +7,10 @@ export function getQueryParamValue(queryParam: string) {
     return searchParams.get(queryParam) || '';
 }
 
-export function setQueryParamValue(queryParam: string, value: string) {
-    const searchParams = new URLSearchParams(window.location.search);
-    searchParams.set(queryParam, value);
-  
-    const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
-    window.history.replaceState({}, '', newUrl);
-}
-
 export function getCurrentPath(location: Location) {
     const searchParams = new URLSearchParams(location.search);
     const pathQueryParam = searchParams.get('path');
     return pathQueryParam || '.'
-}
-
-export function setCurrentPath(path: upath.ParsedPath | string) {
-    if (typeof path === "string") {
-        console.log(path)
-        setCurrentPath(upath.parse(path))
-    } else {
-        console.log(path)
-        setQueryParamValue('path', path.dir)
-    }
 }
 
 export function getAPIURLFromPath(path: string, is_directory: boolean) {
@@ -95,15 +77,19 @@ export function isImageFile(file: FileEntry): boolean {
 interface FolderData {
     entries: FileEntry[],
     absolute_path: string
-}  
+    parent_path: string
+}
+
 export async function getFileList(path: string): Promise<FolderData> {
     const response = await fetch(getAPIURLFromPath(path, true))
     if (!response.ok) throw new Error(`HTTP error ${response.status}`)
     const json: FolderData = await response.json()
+    console.log(`Raw absolute path: ${json.absolute_path}`)
     const parsedPath = upath.parse(json.absolute_path)
-    const fullPath = `${parsedPath.dir}/${parsedPath.base}/`
+    json.absolute_path = `${parsedPath.dir}/${parsedPath.base}/`
+    json.parent_path = `${parsedPath.dir}/`
     for (let entry of json.entries) {
-      entry.absolute_path = fullPath
+      entry.absolute_path = json.absolute_path
     }
     return json
 }

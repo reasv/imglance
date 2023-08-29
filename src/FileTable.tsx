@@ -12,8 +12,8 @@ import {
 } from '@chakra-ui/react';
 import { FiFolder, FiFile, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import { FileEntry, SortedEntries } from './FileView';
-import { Link, useLocation, useMatch, useSearchParams } from 'react-router-dom';
-import { formatEpochToHumanReadable, getAPIURLFromPath, getFileExtension, getPinnedPaths, getQueryParamValue, humanReadableFileSize, shortenString } from './utils';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { formatEpochToHumanReadable, getAPIURLFromPath, getFileExtension, getPinnedPaths, humanReadableFileSize, shortenString } from './utils';
 
 
 function FileListEntry({entry}: {entry: FileEntry}) {
