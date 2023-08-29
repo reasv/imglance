@@ -51,14 +51,16 @@ export function FileView() {
         } else {
           setPath(pathParam)
         }
-        folderData.entries.unshift({
-          name: "..",
-          is_directory: true,
-          last_modified: 0,
-          fsize: 0,
-          absolute_path: folderData.parent_path,
-          parent_path: '' // Unknown
-        })
+        if (folderData.parent_path !== null) {
+          folderData.entries.unshift({
+            name: "..",
+            is_directory: true,
+            last_modified: 0,
+            fsize: 0,
+            absolute_path: folderData.parent_path,
+            parent_path: '' // Unknown
+          })
+        }
         setData(folderData.entries)
       } catch (error) {
         console.log(error)
