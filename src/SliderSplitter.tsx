@@ -23,7 +23,7 @@ const SliderSplitter: React.FC<SliderSplitterProps> = ({ leftComponent, rightCom
 
   return (
     <Box>
-    <Slider
+      <Slider
         orientation="horizontal"
         min={0}
         max={1}
@@ -39,16 +39,16 @@ const SliderSplitter: React.FC<SliderSplitterProps> = ({ leftComponent, rightCom
         </SliderTrack>
         <SliderThumb />
       </Slider>
-      
-    <Box display="flex" height="100%">
-      <Box flex={splitRatio} overflow="auto">
-        {leftComponent}
+
+      <Box display="flex" height="100%">
+        <Box flex={splitRatio} overflow="auto">
+          {leftComponent}
+        </Box>
+
+        <Box flex={1 - splitRatio} overflow="auto">
+          {splitRatio < 1 && rightComponent}
+        </Box>
       </Box>
-      
-      <Box flex={1 - splitRatio} overflow="auto">
-        {splitRatio < 1 && rightComponent}
-      </Box>
-    </Box>
     </Box>
   );
 };
