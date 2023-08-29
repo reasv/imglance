@@ -109,7 +109,9 @@ export function FileView() {
         }
         const folderData = await getFileList(pinnedPath)
         const folderEntries = folderData.entries.filter(entry => isImageFile(entry))
-        setPinData(pinData => [folderEntries, ...pinData])
+        if (folderEntries.length > 0) {
+          setPinData(pinData => [folderEntries, ...pinData])
+        }
         setFetchedPaths(fetchedPaths => fetchedPaths.add(pinnedPath))
       }
       setPinData(pinData => pinData.filter(pd => pathSet.has(pd[0].absolute_path)))
