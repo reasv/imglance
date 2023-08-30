@@ -13,7 +13,7 @@ export function getCurrentPath(location: Location) {
 }
 
 export function getAPIURLFromPath(path: string, is_directory: boolean) {
-    return "http://127.0.0.1:8080/" + (is_directory ? "folder?path=" : "file?path=") + path
+    return "http://127.0.0.1:8080/" + (is_directory ? "folder?archive_access=true&path=" : "file?path=") + path
 }
 
 export function getPinnedPaths(params?: URLSearchParams): Set<string> {
@@ -83,6 +83,7 @@ export async function getFileList(path: string): Promise<FolderData> {
     const response = await fetch(getAPIURLFromPath(path, true))
     if (!response.ok) throw new Error(`HTTP error ${response.status}`)
     const json: FolderData = await response.json()
+    console.log(json)
     console.log(`Raw absolute path: ${json.absolute_path}`)
     return json
 }

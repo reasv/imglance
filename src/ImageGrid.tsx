@@ -26,7 +26,8 @@ const ImageGrid: React.FC<ImageMasonryProps> = ({ entries, highlighted, onClick 
   const handleSliderChange = (value: number) => {
     setImageSize(value);
   };
-  const containerStyle = {
+  const containerStyle: React.CSSProperties = {
+    direction: 'rtl', // Right to left
     display: 'grid',
     gridTemplateColumns: `repeat(auto-fill, minmax(${imageSize}px, 1fr))`,
     gap: '10px',
